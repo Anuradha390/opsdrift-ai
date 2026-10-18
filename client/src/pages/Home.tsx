@@ -265,7 +265,7 @@ function Overview({ kpis, activeFilter, setActiveFilter, onSelectFinding, onJump
       <section className="hero-grid">
         <div className="hero-panel">
           <div className="hero-panel-top"><SectionEyebrow icon={Radar}>PROCESS OBSERVABILITY / PROCUREMENT</SectionEyebrow><span className="live-pill"><span />Live workspace</span></div>
-          <h1>Three checks failed<br /><em>at vendor onboarding.</em></h1>
+          <h1>See where policy<br /><em>breaks in practice.</em></h1>
           <p>This prototype compares a procurement rule with the records around it. The current sample contains 17 source documents, 48 labelled questions, and three repeatable control gaps.</p>
           <div className="hero-actions"><Button onClick={() => onJump("findings")}><ShieldAlert size={15} />Inspect 3 findings</Button><Button variant="outline" onClick={() => onJump("evidence")}><Upload size={15} />Add evidence</Button></div>
           <div className="hero-footnote"><span className="mono-label">DATASET</span><span>Northstar sample / v0.1</span><span className="hero-separator" /><span className="mono-label">SOURCES</span><span>{kpis.evidence} monitored</span></div>
@@ -290,7 +290,7 @@ function Overview({ kpis, activeFilter, setActiveFilter, onSelectFinding, onJump
 export default function Home() {
   const [activeSection, setActiveSection] = useState<Section>("overview");
   const [activeFilter, setActiveFilter] = useState<FilterValue>("all");
-  const [selectedFinding, setSelectedFinding] = useState<Finding | null>(findings[0]);
+  const [selectedFinding, setSelectedFinding] = useState<Finding | null>(null);
   const [actions, setActions] = useState<CorrectiveAction[]>(initialActions);
   const [evidenceItems, setEvidenceItems] = useState<Evidence[]>(seededEvidence);
   const [uploading, setUploading] = useState(false);
@@ -310,7 +310,7 @@ export default function Home() {
   const selectFindingById = (findingId: string) => { const finding = findings.find(item => item.id === findingId); if (finding) { setSelectedFinding(finding); setActiveSection("findings"); } };
 
   const sectionTitle: Record<Section, { eyebrow: string; title: string; copy: string }> = {
-    overview: { eyebrow: "Operations overview", title: "Three checks failed this week.", copy: "A working prototype for finding gaps between procurement policy and the records teams actually create." },
+    overview: { eyebrow: "Operations overview", title: "Procurement control center.", copy: "A clear view of where documented policy and day-to-day records stop agreeing." },
     findings: { eyebrow: "Drift findings", title: "Where reality is diverging.", copy: "Ranked by risk, recurrence, and the cost of leaving the gap untouched." },
     actions: { eyebrow: "Corrective actions", title: "Move findings toward closure.", copy: "Every detected gap becomes an owned next step with an audit trail." },
     evidence: { eyebrow: "Evidence library", title: "The sources behind every signal.", copy: "Policies define the expected process. Records show what happened." },
