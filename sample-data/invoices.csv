@@ -1,0 +1,4 @@
+invoice_id,po_id,vendor_id,vendor_state,company_state,invoice_date,amount_inr,tax_type,tax_rate_percent,tds_review,approval_channel
+INV-2026-1048,PO-8831,V-014,Maharashtra,Maharashtra,2026-10-12,248600,IGST,18,not_required,email_only
+INV-2026-1039,PO-8802,V-022,Gujarat,Maharashtra,2026-10-06,86400,IGST,18,review_required,system
+INV-2026-1027,PO-8779,V-031,Maharashtra,Maharashtra,2026-09-30,114200,CGST+SGST,18,review_required,system

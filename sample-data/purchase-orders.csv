@@ -1,0 +1,4 @@
+po_id,vendor_id,vendor_name,po_date,department,amount_inr,quantity,unit_price_inr,approval_status
+PO-8831,V-014,Kaveri Components,2026-10-02,Production,248600,10,24860,approved
+PO-8802,V-022,Aster Industrial Supply,2026-09-28,Maintenance,79000,200,395,approved
+PO-8779,V-031,BluePeak Logistics,2026-09-21,Logistics,114200,1,114200,approved

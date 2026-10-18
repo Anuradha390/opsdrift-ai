@@ -1,0 +1,4 @@
+grn_id,po_id,receipt_date,received_quantity,accepted_quantity,warehouse
+GRN-7712,PO-8831,2026-10-11,10,10,Pune-01
+GRN-7698,PO-8802,2026-10-05,200,200,Pune-01
+GRN-7670,PO-8779,2026-09-29,1,1,Mumbai-02

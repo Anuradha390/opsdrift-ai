@@ -116,7 +116,38 @@ The prototype keeps the analysis contract isolated in `client/src/lib/opsdrift-d
 
 ---
 
-## 4. Project structure
+## 4. My contribution
+
+I designed and implemented the procurement drift data model, evidence-grounded finding drawer, hybrid retrieval explanation layer, India-specific GST/TDS and three-way matching demo rules, vendor risk scoring, corrective-action flow, evaluation lab, human-review boundary, responsive React interface, Docker build, GitHub repository, and Render deployment.
+
+The project deliberately documents what is implemented and what is not. Tally, Zoho Books, Gmail, Outlook, live GSTIN verification, authentication, and production vector infrastructure are documented as next steps rather than presented as connected features.
+
+---
+
+## 5. Sample data and reproducible test cases
+
+The repository includes small, anonymised CSV files so the project can be reviewed as a data workflow rather than only as a visual mockup:
+
+```text
+sample-data/
+  procurement-policy.csv
+  purchase-orders.csv
+  goods-receipts.csv
+  invoices.csv
+  vendors.csv
+```
+
+The files contain synthetic Indian procurement examples with INR amounts, GST states, TDS review flags, PO/GRN/invoice identifiers, vendor controls, and expected risk labels. They contain no real customer, employee, or vendor information.
+
+Reproducible input/output scenarios are documented in [`docs/test-cases.md`](docs/test-cases.md). Project ownership, design decisions, and the evaluation disclaimer are in [`docs/project-notes.md`](docs/project-notes.md).
+
+### Evaluation disclaimer
+
+The current benchmark values are based on a small synthetic labelled dataset created for this prototype. They are not production accuracy claims and should not be used to make tax, payment, or vendor decisions without human review.
+
+---
+
+## 6. Project structure
 
 ```text
 client/
@@ -124,6 +155,10 @@ client/
   src/pages/Home.tsx             Main dashboard, sections, drawers, and actions
   src/lib/opsdrift-data.ts       Seed data, rules, findings, benchmarks, and helpers
   src/index.css                  Dashboard visual system and responsive styles
+sample-data/                     Anonymised CSV fixtures for procurement scenarios
+docs/test-cases.md               Reproducible input/output review cases
+docs/project-notes.md            Contribution, design, and evaluation notes
+tests/opsdrift-data.test.ts      Automated checks for audit export and rule coverage
 server/
   _core/index.ts                 Express entrypoint and health route
 drizzle/                         Database foundation for a later persistence pass
@@ -136,7 +171,7 @@ TODO.md                           Delivered implementation outcomes
 
 ---
 
-## 5. Prototype status
+## 7. Prototype status
 
 | Area | Status | Notes |
 | --- | --- | --- |
@@ -156,7 +191,7 @@ The project is a **functional prototype**, not a production compliance product. 
 
 ---
 
-## 6. Demo workflow
+## 8. Demo workflow
 
 1. Open the live demo and start on **Operations overview**.
 2. Read the main finding: three procurement checks failed in the current sample.
@@ -175,7 +210,7 @@ The project is a **functional prototype**, not a production compliance product. 
 
 ---
 
-## 7. Local development
+## 9. Local development
 
 ### Requirements
 
@@ -200,7 +235,7 @@ Use the public Render URL above when sharing the project with teachers, reviewer
 pnpm check       # TypeScript validation
 pnpm build       # Production frontend + server build
 pnpm start       # Serve the production build
-pnpm test        # Project tests, if present
+pnpm test        # Data-model and server tests
 ```
 
 The deployed application health endpoint is [https://opsdrift-ai.onrender.com/api/health](https://opsdrift-ai.onrender.com/api/health) and returns `{"status":"ok"}` when the service is healthy.
@@ -209,7 +244,7 @@ Do not commit `.env` files, credentials, Render secrets, database URLs, or API k
 
 ---
 
-## 8. Render deployment
+## 10. Render deployment
 
 The repository includes `render.yaml` and `Dockerfile`.
 
@@ -243,7 +278,7 @@ Free Render services can sleep after inactivity. The first request after sleepin
 
 ---
 
-## 9. Known limitations and next engineering steps
+## 11. Known limitations and next engineering steps
 
 - Replace seeded data with anonymised company documents and a labelled evaluation set.
 - Add OCR for scanned PDF invoices and policies.
@@ -256,7 +291,7 @@ Free Render services can sleep after inactivity. The first request after sleepin
 
 ---
 
-## 10. Resume-ready description
+## 12. Resume-ready description
 
 > Built **OpsDrift AI**, an India-focused procurement process-observability platform using React, Express, TypeScript, and a hybrid retrieval workflow. Compared policy requirements with invoice, vendor, approval, and purchase evidence; implemented GST/TDS checks, PO–GRN–invoice matching, vendor-risk scoring, corrective actions, audit export, retrieval benchmarks, and human-review controls. Deployed the Dockerised application to Render from a public GitHub repository.
 

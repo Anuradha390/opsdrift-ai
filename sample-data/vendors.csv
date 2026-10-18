@@ -1,0 +1,5 @@
+vendor_id,vendor_name,category,gstin_state,security_questionnaire,late_deliveries_90d,bank_change_count,risk_label
+V-014,Kaveri Components,Raw materials,Maharashtra,false,2,0,high
+V-022,Aster Industrial Supply,Maintenance,Gujarat,true,1,0,medium
+V-031,BluePeak Logistics,Freight,Maharashtra,true,0,0,low
+V-044,Narmada Packaging,Packaging,Maharashtra,true,1,1,medium

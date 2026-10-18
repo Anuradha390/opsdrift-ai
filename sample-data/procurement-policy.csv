@@ -1,0 +1,5 @@
+policy_id,version,effective_date,process,rule,threshold_inr,required_evidence,owner
+POL-001,v2.4,2026-09-01,Purchase approvals,"Purchases above threshold require three comparable quotations and Finance Manager approval",500000,"3 quotations; finance approval",Finance
+POL-002,v3.2,2026-08-15,Vendor onboarding,"Every new vendor needs a completed security questionnaire before activation",0,"security questionnaire",Procurement
+POL-003,v1.8,2026-07-01,Invoice approvals,"Invoices above threshold require approval in the system",100000,"system approval record",Accounts Payable
+POL-004,v1.1,2026-08-01,GST controls,"Same-state supply uses CGST and SGST; inter-state supply uses IGST",0,"GSTIN; place of supply",Tax

@@ -63,3 +63,11 @@
 - [x] Show known limitations instead of hiding OCR, live-GSTIN, policy-conflict, and seeded-data boundaries.
 - [x] Add a human-review loop that keeps findings provisional until an operator confirms them.
 - [x] Replace generic marketing copy with a grounded dataset/sample explanation in the main dashboard.
+
+## Portfolio credibility improvements
+
+- [x] Add a README section describing the student’s technical contribution and honest integration boundaries.
+- [x] Add anonymised procurement policy, purchase-order, goods-receipt, invoice, and vendor CSV fixtures.
+- [x] Add reproducible input/output review cases for threshold, three-way matching, GST, vendor onboarding, and approval evidence.
+- [x] Add an explicit synthetic-evaluation disclaimer for benchmark numbers.
+- [x] Add automated Vitest checks for audit export columns, retrieval benchmark ordering, and India control coverage.
