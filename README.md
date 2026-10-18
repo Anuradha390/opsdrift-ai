@@ -65,6 +65,16 @@ Each finding shows:
 - Known limitations and failure cases
 - Human-review loop where a finding remains provisional until an operator confirms it
 
+### Business toolkit
+
+- CSV/JSON import preview with a column-mapping handoff point
+- Editable workspace rulebook saved in the browser for the demo
+- Searchable PO–GRN–invoice review queue with open, reviewing, and resolved states
+- Vendor-risk explanations tied to visible flags rather than an unexplained score
+- Policy-threshold simulator showing the estimated open-request impact
+- Process drift heatmap by control owner
+- Reviewer notes and CSV export for the review queue
+
 ---
 
 ## 3. Architecture
@@ -183,6 +193,7 @@ TODO.md                           Delivered implementation outcomes
 | Three-way matching | Implemented as seeded/CSV-ready flow | Real ERP purchase-order APIs are not connected yet |
 | Vendor risk | Implemented as demo scoring | Production scoring needs company history and feedback labels |
 | Retrieval evaluation | Implemented as transparent demo lab | The displayed benchmark set is illustrative and must be replaced with a real labelled dataset |
+| Business toolkit | Implemented as browser-local workflow prototype | Rule edits, review states, notes, and import preview are local until database persistence is connected |
 | Database persistence | Foundation available | Dashboard state is currently client-side for the prototype |
 | Authentication and roles | Not yet implemented | Required before handling real company documents |
 | Live Tally/Zoho/Gmail/Outlook connectors | Not yet implemented | Integration-ready UI surfaces are included without pretending live access |
@@ -201,8 +212,9 @@ The project is a **functional prototype**, not a production compliance product. 
 6. Create a corrective action or keep the finding under review.
 7. Open **India controls** to show GST/TDS checks, three-way matching, vendor risk, process scores, and ROI.
 8. Open **Evaluation lab** to show retrieval comparisons, labelled-set metadata, explicit rules, limitations, and the human-review boundary.
-9. Download the audit CSV from the India controls workspace.
-10. Explain that the prototype is designed to be extended with real company documents and connectors, not presented as a live ERP integration.
+9. Open **Business toolkit** to demonstrate import preview, matching filters, reviewer status, rule editing, the policy simulator, vendor-risk explanations, and the drift heatmap.
+10. Download the audit CSV from the India controls workspace or export the review queue from Business toolkit.
+11. Explain that the prototype is designed to be extended with real company documents and connectors, not presented as a live ERP integration.
 
 ### Suggested teacher explanation
 

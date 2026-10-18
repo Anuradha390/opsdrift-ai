@@ -71,3 +71,13 @@
 - [x] Add reproducible input/output review cases for threshold, three-way matching, GST, vendor onboarding, and approval evidence.
 - [x] Add an explicit synthetic-evaluation disclaimer for benchmark numbers.
 - [x] Add automated Vitest checks for audit export columns, retrieval benchmark ordering, and India control coverage.
+
+## Phase 1 business workflows
+
+- [x] Add a Business toolkit workspace with CSV/JSON import preview and a clear handoff point for future column mapping.
+- [x] Add a browser-local policy rule editor with saved custom rules and explicit “needs test case” status.
+- [x] Add a searchable PO–GRN–invoice review queue with exception filters, reviewer statuses, and CSV export.
+- [x] Add explainable vendor-risk rows that show the visible flags behind each demo score.
+- [x] Add a purchase-threshold simulator showing the estimated open-request review impact.
+- [x] Add a process drift heatmap by control owner and a browser-local reviewer note field.
+- [x] Document that these workflow states are prototype-local until database persistence is connected.

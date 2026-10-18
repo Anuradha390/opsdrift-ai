@@ -26,6 +26,12 @@ The initial implementation is a polished React dashboard backed by a small typed
 
 Uploaded files are read in the browser. CSV/JSON/text content is summarized into an evidence record and matched against the seeded procurement requirement patterns. The MVP avoids requiring external model/API keys and therefore remains runnable in Preview. The code keeps retrieval and analysis logic isolated in `client/src/lib/opsdrift-data.ts` for later backend integration.
 
+## Phase 1 business workflow extension
+
+The Business toolkit workspace adds the first operator-facing workflows beyond the dashboard: import preview, a browser-local policy rule editor, searchable PO–GRN–invoice review with status transitions, explainable vendor-risk flags, a policy-threshold impact simulator, a process drift heatmap, reviewer notes, and CSV export. These are intentionally useful prototype workflows with synthetic data. Their state is saved in the browser where appropriate; database persistence, authenticated workspaces, and live ERP connectors remain separate production steps.
+
+The visual shell now supports Light, Dim, Dark, and System display modes through a persistent theme context. The interface uses grounded labels such as “Procurement review” and “Demo workspace” instead of implying that external company systems are already connected.
+
 ## Project structure
 
 - `client/src/pages/Home.tsx`: main dashboard shell, navigation, dashboard views, drawers, and UI state.

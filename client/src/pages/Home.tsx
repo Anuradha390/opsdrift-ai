@@ -75,7 +75,7 @@ import {
   type Severity,
 } from "@/lib/opsdrift-data";
 
-type Section = "overview" | "findings" | "actions" | "evidence" | "monitoring" | "india" | "evaluation";
+type Section = "overview" | "findings" | "actions" | "evidence" | "monitoring" | "india" | "toolkit" | "evaluation";
 type FilterValue = "all" | Severity;
 
 const navItems: { id: Section; label: string; icon: typeof Activity; count?: string }[] = [
@@ -85,6 +85,7 @@ const navItems: { id: Section; label: string; icon: typeof Activity; count?: str
   { id: "evidence", label: "Evidence library", icon: FolderOpen, count: "07" },
   { id: "monitoring", label: "Change monitor", icon: GitCompareArrows, count: "01" },
   { id: "india", label: "India controls", icon: BadgeIndianRupee, count: "09" },
+  { id: "toolkit", label: "Business toolkit", icon: DatabaseZap, count: "05" },
   { id: "evaluation", label: "Evaluation lab", icon: BarChart3, count: "48" },
 ];
 
@@ -250,6 +251,76 @@ function IndiaControls({ language, setLanguage, onNotice }: { language: Language
   );
 }
 
+type ReviewState = "open" | "reviewing" | "resolved";
+
+function BusinessToolkit({ onNotice }: { onNotice: (message: string) => void }) {
+  const [query, setQuery] = useState("");
+  const [matchFilter, setMatchFilter] = useState<"all" | "exception" | "matched">("all");
+  const [threshold, setThreshold] = useState(500000);
+  const [newRule, setNewRule] = useState("");
+  const [comment, setComment] = useState("");
+  const [importName, setImportName] = useState<string | null>(null);
+  const [reviewStates, setReviewStates] = useState<Record<string, ReviewState>>({
+    "INV-2026-1048": "open",
+    "INV-2026-1039": "reviewing",
+    "INV-2026-1027": "resolved",
+  });
+  const [customRules, setCustomRules] = useState(() => {
+    try {
+      const stored = window.localStorage.getItem("opsdrift-custom-rules");
+      return stored ? JSON.parse(stored) as Array<{ id: string; name: string; logic: string; result: string }> : [];
+    } catch { return []; }
+  });
+
+  useEffect(() => { window.localStorage.setItem("opsdrift-custom-rules", JSON.stringify(customRules)); }, [customRules]);
+
+  const visibleMatches = threeWayMatches.filter(match => {
+    const matchesFilter = matchFilter === "all" || match.status === matchFilter;
+    const text = `${match.invoice} ${match.vendor} ${match.issue}`.toLowerCase();
+    return matchesFilter && text.includes(query.toLowerCase());
+  });
+  const affectedRequests = threshold >= 500000 ? 14 : threshold >= 250000 ? 23 : 31;
+  const parsedAmount = (value: string) => Number(value.replace(/[₹,L ]/g, "").replace(".", "")) || 0;
+  const addRule = () => {
+    const logic = newRule.trim();
+    if (!logic) { onNotice("Write a rule condition before saving it."); return; }
+    setCustomRules(current => [...current, { id: `CUSTOM-${String(current.length + 1).padStart(2, "0")}`, name: "Workspace rule", logic, result: "new · needs test case" }]);
+    setNewRule("");
+    onNotice("Rule saved locally for this demo workspace.");
+  };
+  const handleFixtureImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    await parseUpload(file);
+    setImportName(file.name);
+    onNotice(`${file.name} loaded. Review the preview before mapping columns.`);
+    event.target.value = "";
+  };
+  const setReview = (invoice: string, state: ReviewState) => setReviewStates(current => ({ ...current, [invoice]: state }));
+  const downloadReview = () => {
+    const rows = [["Invoice", "Vendor", "Issue", "Value", "Review status"], ...threeWayMatches.map(match => [match.invoice, match.vendor, match.issue, match.value, reviewStates[match.invoice] ?? "open"])]
+      .map(row => row.map(cell => `"${cell.replaceAll('"', '""')}"`).join(",")).join("\n");
+    const url = URL.createObjectURL(new Blob([rows], { type: "text/csv" }));
+    const anchor = document.createElement("a"); anchor.href = url; anchor.download = "opsdrift-review-queue.csv"; anchor.click(); URL.revokeObjectURL(url);
+    onNotice("Review queue exported as CSV.");
+  };
+  return <section className="toolkit-workspace">
+    <div className="toolkit-intro"><div><SectionEyebrow icon={DatabaseZap}>BUSINESS TOOLKIT</SectionEyebrow><h2>Useful controls for a finance or procurement team</h2><p>These are working prototype workflows: the records are synthetic, the state is saved in this browser, and every automated result still has a reviewer.</p></div><div className="toolkit-badge"><strong>5</strong><span>workflows in this prototype</span></div></div>
+    <div className="toolkit-grid toolkit-grid-top">
+      <div className="content-card toolkit-card"><div className="content-card-heading"><div><SectionEyebrow icon={Upload}>IMPORT PREVIEW</SectionEyebrow><h2>Bring in a company export</h2></div><span className="toolkit-status">CSV / Excel ready</span></div><p className="toolkit-copy">Upload an invoice, vendor, PO, or goods-receipt export. The next step would map its columns into the evidence model.</p><label className="toolkit-upload"><Upload size={17} /><span>{importName ?? "Choose a sample file"}</span><input type="file" accept=".csv,.json,.txt,.md" onChange={handleFixtureImport} /></label>{importName && <div className="import-preview"><strong>Preview ready</strong><span>{importName} · 1 file · mapping review required</span></div>}</div>
+      <div className="content-card toolkit-card"><div className="content-card-heading"><div><SectionEyebrow icon={Gauge}>POLICY SIMULATOR</SectionEyebrow><h2>What changes if the threshold moves?</h2></div></div><div className="simulator-value"><strong>₹{threshold.toLocaleString("en-IN")}</strong><span>purchase approval threshold</span></div><input className="threshold-slider" type="range" min="100000" max="1000000" step="50000" value={threshold} onChange={event => setThreshold(Number(event.target.value))} /><div className="simulator-scale"><span>₹1L</span><span>₹5L</span><span>₹10L</span></div><div className="simulator-impact"><strong>{affectedRequests}</strong><span>open requests would need review</span><small>Estimated from the seeded workspace sample</small></div></div>
+    </div>
+    <div className="toolkit-grid toolkit-grid-wide">
+      <div className="content-card toolkit-card"><div className="content-card-heading"><div><SectionEyebrow icon={ArrowLeftRight}>MATCH REVIEW QUEUE</SectionEyebrow><h2>PO · receipt · invoice</h2></div><button className="text-button" onClick={downloadReview}><Download size={14} />Export queue</button></div><div className="toolkit-toolbar"><input value={query} onChange={event => setQuery(event.target.value)} placeholder="Search invoice or vendor" /><div className="filter-tabs"><button className={matchFilter === "all" ? "active" : ""} onClick={() => setMatchFilter("all")}>All</button><button className={matchFilter === "exception" ? "active" : ""} onClick={() => setMatchFilter("exception")}>Exceptions</button><button className={matchFilter === "matched" ? "active" : ""} onClick={() => setMatchFilter("matched")}>Matched</button></div></div><div className="toolkit-table"><div className="toolkit-table-head"><span>Invoice / vendor</span><span>Exception</span><span>Value</span><span>Review</span></div>{visibleMatches.map(match => <div className="toolkit-table-row" key={match.invoice}><div><strong>{match.invoice}</strong><span>{match.vendor}</span></div><span className={match.status === "matched" ? "match-ok" : "match-exception"}>{match.issue}</span><b>{match.value}</b><select value={reviewStates[match.invoice] ?? "open"} onChange={event => setReview(match.invoice, event.target.value as ReviewState)}><option value="open">Open</option><option value="reviewing">Reviewing</option><option value="resolved">Resolved</option></select></div>)}</div></div>
+      <div className="content-card toolkit-card"><div className="content-card-heading"><div><SectionEyebrow icon={Building2}>VENDOR RISK EXPLAINER</SectionEyebrow><h2>Why a vendor is flagged</h2></div></div><div className="risk-explainer-list">{vendorRisk.map(vendor => <div className="risk-explainer-row" key={vendor.name}><div className={`risk-score risk-${vendor.score > 75 ? "high" : vendor.score > 50 ? "medium" : "low"}`}><b>{vendor.score}</b><span>/100</span></div><div><strong>{vendor.name}</strong><span>{vendor.flags}</span></div><button className="icon-button subtle" onClick={() => onNotice(`${vendor.name}: score is driven by ${vendor.flags.toLowerCase()}.`)}><CircleHelp size={15} /></button></div>)}</div><div className="toolkit-note"><CircleHelp size={14} /><span>Scores are explainable demo rules, not a credit decision.</span></div></div>
+    </div>
+    <div className="toolkit-grid toolkit-grid-wide">
+      <div className="content-card toolkit-card"><div className="content-card-heading"><div><SectionEyebrow icon={Zap}>RULE EDITOR</SectionEyebrow><h2>Make a policy executable</h2></div><span className="toolkit-status">Saved in browser</span></div><p className="toolkit-copy">Example: <code>amount &gt; ₹5,00,000 → require 3 quotations</code></p><div className="rule-editor-row"><input value={newRule} onChange={event => setNewRule(event.target.value)} placeholder="Write a new control condition" onKeyDown={event => event.key === "Enter" && addRule()} /><Button onClick={addRule}><Plus size={14} />Add rule</Button></div><div className="custom-rule-list">{[...rulebook, ...customRules].map(rule => <div key={rule.id}><span>{rule.id}</span><strong>{rule.name}</strong><code>{rule.logic}</code><em>{rule.result}</em></div>)}</div></div>
+      <div className="content-card toolkit-card"><div className="content-card-heading"><div><SectionEyebrow icon={BarChart3}>PROCESS HEATMAP</SectionEyebrow><h2>Where the work is drifting</h2></div></div><div className="heatmap-list">{processScores.map(item => <div className="heatmap-row" key={item.label}><div><strong>{item.label}</strong><span>{item.owner}</span></div><div className="heatmap-track"><i style={{ width: `${item.score}%` }} /></div><b>{item.score}%</b></div>)}</div><div className="toolkit-comment"><textarea value={comment} onChange={event => setComment(event.target.value)} placeholder="Add a reviewer note for this workspace" /><Button variant="outline" onClick={() => { if (comment.trim()) { onNotice("Reviewer note saved in this demo session."); setComment(""); } }}>Save note</Button></div></div>
+    </div>
+  </section>;
+}
+
 function EvaluationLab({ onNotice }: { onNotice: (message: string) => void }) {
   return (
     <section className="evaluation-workspace">
@@ -331,6 +402,7 @@ export default function Home() {
     evidence: { eyebrow: "Evidence library", title: "The sources behind every signal.", copy: "Policies define the expected process. Records show what happened." },
     monitoring: { eyebrow: "Change monitor", title: "Policy changes need operational follow-through.", copy: "Track where a new version should change forms, handoffs, and open work." },
     india: { eyebrow: "India controls", title: "Compliance signals before money moves.", copy: "GST, TDS, vendor risk, and invoice controls built around Indian procurement workflows." },
+    toolkit: { eyebrow: "Business toolkit", title: "Turn exceptions into operating rules.", copy: "Import records, edit controls, review mismatches, and estimate the impact of a policy change." },
     evaluation: { eyebrow: "Evaluation lab", title: "Show the work behind the answer.", copy: "Baselines, labelled examples, explicit rules, and limitations for a reproducible project review." },
   };
 
@@ -353,6 +425,7 @@ export default function Home() {
           {activeSection === "evidence" && <section className="content-card page-card"><div className="content-card-heading"><div><SectionEyebrow icon={FolderOpen}>MONITORED EVIDENCE</SectionEyebrow><h2>{evidenceItems.length} sources in this workspace</h2></div><div><input ref={fileInput} type="file" accept=".txt,.csv,.json,.md,.log" hidden onChange={handleUpload} /><Button onClick={() => fileInput.current?.click()} disabled={uploading}><Upload size={15} />{uploading ? "Reading file…" : "Add evidence"}</Button></div></div><div className="upload-callout"><div className="upload-icon"><Sparkles size={19} /></div><div><strong>Bring in the evidence your business already has.</strong><p>Upload a policy, CSV export, invoice note, or approval log. The MVP reads text locally and adds it to the evidence chain without sending files anywhere.</p></div><span className="mono-label">LOCAL ANALYSIS</span></div><div className="evidence-list">{evidenceItems.map(item => <EvidenceCard key={item.id} item={item} />)}</div></section>}
           {activeSection === "monitoring" && <section className="monitoring-layout"><div className="content-card page-card change-detail-card"><div className="content-card-heading"><div><SectionEyebrow icon={GitCompareArrows}>POLICY DIFF</SectionEyebrow><h2>{changeWatch.title}</h2></div><StatusPill status="watching" /></div><div className="version-compare"><div><span className="mono-label">PREVIOUS VERSION</span><strong>{changeWatch.previous}</strong><small>Purchase Approval Matrix v2.3</small></div><div className="compare-arrow"><ArrowUpRight size={20} /></div><div className="current-version"><span className="mono-label">CURRENT VERSION</span><strong>{changeWatch.current}</strong><small>Purchase Approval Matrix v2.4</small></div></div><div className="change-explanation"><SectionEyebrow icon={AlertCircle}>Operational impact</SectionEyebrow><p>{changeWatch.note}</p><div className="impact-grid"><div><strong>03</strong><span>process steps to update</span></div><div><strong>14</strong><span>open requests affected</span></div><div><strong>02</strong><span>teams to notify</span></div></div></div><Button onClick={() => setNotice("Impact review queued for Finance and Procurement.")}><ClipboardCheck size={15} />Create impact review</Button></div><div className="content-card page-card monitor-side"><SectionEyebrow icon={Zap}>WHAT OPSDRIFT WATCHES</SectionEyebrow><h2>Changes are only useful when the work changes too.</h2><p>OpsDrift maps policy changes to the forms, roles, and open records that depend on them. That is the gap between version control and operational control.</p><div className="watch-list"><span><Check size={14} />Approved policy versions</span><span><Check size={14} />Forms and checklists</span><span><Check size={14} />Open requests and exceptions</span><span><Check size={14} />Owners and due dates</span></div><button className="text-button" onClick={() => setNotice("Monitoring rules are available in the next workspace setup step.")}>Configure monitoring <ChevronRight size={14} /></button></div></section>}
           {activeSection === "india" && <IndiaControls language={language} setLanguage={setLanguage} onNotice={setNotice} />}
+          {activeSection === "toolkit" && <BusinessToolkit onNotice={setNotice} />}
           {activeSection === "evaluation" && <EvaluationLab onNotice={setNotice} />}
         </div>
       </main>
