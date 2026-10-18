@@ -28,13 +28,16 @@ import {
   Link2,
   Layers3,
   Menu,
+  Monitor,
   MoreHorizontal,
+  Moon,
   Plus,
   Radar,
   ReceiptText,
   Search,
   ShieldAlert,
   Sparkles,
+  Sun,
   TriangleAlert,
   Upload,
   UserRound,
@@ -43,6 +46,7 @@ import {
   Zap,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTheme, type Theme } from "@/contexts/ThemeContext";
 import { Button } from "@/components/ui/button";
 import {
   changeWatch,
@@ -264,9 +268,9 @@ function Overview({ kpis, activeFilter, setActiveFilter, onSelectFinding, onJump
     <>
       <section className="hero-grid">
         <div className="hero-panel">
-          <div className="hero-panel-top"><SectionEyebrow icon={Radar}>PROCESS OBSERVABILITY / PROCUREMENT</SectionEyebrow><span className="live-pill"><span />Live workspace</span></div>
+          <div className="hero-panel-top"><SectionEyebrow icon={Radar}>PROCUREMENT REVIEW</SectionEyebrow><span className="live-pill"><span />Demo workspace</span></div>
           <h1>See where policy<br /><em>breaks in practice.</em></h1>
-          <p>This prototype compares a procurement rule with the records around it. The current sample contains 17 source documents, 48 labelled questions, and three repeatable control gaps.</p>
+          <p>This sample compares a procurement rule with the records around it. It contains 17 source documents, 48 labelled questions, and three repeatable control gaps.</p>
           <div className="hero-actions"><Button onClick={() => onJump("findings")}><ShieldAlert size={15} />Inspect 3 findings</Button><Button variant="outline" onClick={() => onJump("evidence")}><Upload size={15} />Add evidence</Button></div>
           <div className="hero-footnote"><span className="mono-label">DATASET</span><span>Northstar sample / v0.1</span><span className="hero-separator" /><span className="mono-label">SOURCES</span><span>{kpis.evidence} monitored</span></div>
         </div>
@@ -285,6 +289,17 @@ function Overview({ kpis, activeFilter, setActiveFilter, onSelectFinding, onJump
       <section className="content-card findings-card"><div className="content-card-heading findings-heading"><div><SectionEyebrow icon={ShieldAlert}>RANKED FINDINGS</SectionEyebrow><h2>Where reality is diverging</h2></div><div className="filter-tabs"><button className={activeFilter === "all" ? "active" : ""} onClick={() => setActiveFilter("all")}>All <span>03</span></button><button className={activeFilter === "critical" ? "active" : ""} onClick={() => setActiveFilter("critical")}>Critical <span>01</span></button><button className={activeFilter === "high" ? "active" : ""} onClick={() => setActiveFilter("high")}>High <span>01</span></button></div></div><div className="finding-list">{visibleFindings.map(finding => <FindingRow key={finding.id} finding={finding} onSelect={onSelectFinding} />)}</div><button className="full-list-button" onClick={() => onJump("findings")}>Open all findings <ChevronRight size={15} /></button></section>
     </>
   );
+}
+
+function ThemeModeControl() {
+  const { theme, setTheme } = useTheme();
+  const modes: Array<{ id: Theme; label: string; icon: typeof Sun }> = [
+    { id: "light", label: "Light", icon: Sun },
+    { id: "dim", label: "Dim", icon: Monitor },
+    { id: "dark", label: "Dark", icon: Moon },
+    { id: "system", label: "System", icon: Monitor },
+  ];
+  return <div className="theme-mode-control" aria-label="Choose display mode">{modes.map(({ id, label, icon: Icon }) => <button key={id} className={theme === id ? "active" : ""} onClick={() => setTheme(id)} title={`${label} mode`} aria-label={`${label} mode`}><Icon size={14} /><span>{label}</span></button>)}</div>;
 }
 
 export default function Home() {
@@ -329,7 +344,7 @@ export default function Home() {
       </aside>
       {mobileNavOpen && <button className="mobile-backdrop" onClick={() => setMobileNavOpen(false)} aria-label="Close navigation" />}
       <main className="app-main">
-        <header className="topbar"><button className="mobile-menu" onClick={() => setMobileNavOpen(true)} aria-label="Open navigation"><Menu size={20} /></button><div className="breadcrumb"><span>Northstar Manufacturing India</span><ChevronRight size={14} /><strong>{sectionTitle[activeSection].eyebrow}</strong></div><div className="topbar-actions"><button className="search-trigger"><Search size={16} /><span>Search workspace</span><kbd>⌘ K</kbd></button><button className="icon-button"><BellIcon /></button><div className="topbar-avatar">AK</div></div></header>
+        <header className="topbar"><button className="mobile-menu" onClick={() => setMobileNavOpen(true)} aria-label="Open navigation"><Menu size={20} /></button><div className="breadcrumb"><span>Northstar Manufacturing India</span><ChevronRight size={14} /><strong>{sectionTitle[activeSection].eyebrow}</strong></div><div className="topbar-actions"><ThemeModeControl /><button className="search-trigger"><Search size={16} /><span>Search workspace</span><kbd>⌘ K</kbd></button><button className="icon-button"><BellIcon /></button><div className="topbar-avatar">AK</div></div></header>
         <div className="page-content">
           <div className="page-header"><div><SectionEyebrow icon={activeSection === "overview" ? Radar : navItems.find(item => item.id === activeSection)?.icon}>{sectionTitle[activeSection].eyebrow}</SectionEyebrow><h2>{sectionTitle[activeSection].title}</h2><p>{sectionTitle[activeSection].copy}</p></div><div className="page-header-actions"><span className="date-chip"><Clock3 size={14} />Oct 01 — Oct 18, 2026</span><button className="icon-button subtle"><Filter size={16} /></button></div></div>
           {activeSection === "overview" && <Overview kpis={kpis} activeFilter={activeFilter} setActiveFilter={setActiveFilter} onSelectFinding={setSelectedFinding} onJump={jumpTo} />}
