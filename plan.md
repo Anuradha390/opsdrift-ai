@@ -30,7 +30,7 @@ Uploaded files are read in the browser. CSV/JSON/text content is summarized into
 
 The Business toolkit workspace adds the first operator-facing workflows beyond the dashboard: import preview, a browser-local policy rule editor, searchable PO–GRN–invoice review with status transitions, explainable vendor-risk flags, a policy-threshold impact simulator, a process drift heatmap, reviewer notes, and CSV export. These are intentionally useful prototype workflows with synthetic data. Their state is saved in the browser where appropriate; database persistence, authenticated workspaces, and live ERP connectors remain separate production steps.
 
-The visual shell now supports Light, Dim, Dark, and System display modes through a persistent theme context. The interface uses grounded labels such as “Procurement review” and “Demo workspace” instead of implying that external company systems are already connected.
+The visual shell now supports Light, Dim, Dark, and System display modes through a persistent theme context, plus Standard, Compact, and Presentation layouts. Presentation mode is intended for a clean teacher or recruiter walkthrough; Compact mode is intended for scanning more records. The interface uses grounded labels such as “Procurement review” and “Demo workspace” instead of implying that external company systems are already connected.
 
 ## Project structure
 

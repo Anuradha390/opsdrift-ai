@@ -75,6 +75,14 @@ Each finding shows:
 - Process drift heatmap by control owner
 - Reviewer notes and CSV export for the review queue
 
+### Interactive display controls
+
+- Light, Dim, Dark, and System color themes
+- Standard layout for normal work
+- Compact layout for scanning more records at once
+- Presentation layout for a clean full-width teacher or recruiter demo
+- Selected theme and layout are remembered in the browser
+
 ---
 
 ## 3. Architecture
@@ -213,8 +221,9 @@ The project is a **functional prototype**, not a production compliance product. 
 7. Open **India controls** to show GST/TDS checks, three-way matching, vendor risk, process scores, and ROI.
 8. Open **Evaluation lab** to show retrieval comparisons, labelled-set metadata, explicit rules, limitations, and the human-review boundary.
 9. Open **Business toolkit** to demonstrate import preview, matching filters, reviewer status, rule editing, the policy simulator, vendor-risk explanations, and the drift heatmap.
-10. Download the audit CSV from the India controls workspace or export the review queue from Business toolkit.
-11. Explain that the prototype is designed to be extended with real company documents and connectors, not presented as a live ERP integration.
+10. Try the top-right **Standard**, **Compact**, and **Presentation** layout modes, then switch between Light, Dim, Dark, and System themes.
+11. Download the audit CSV from the India controls workspace or export the review queue from Business toolkit.
+12. Explain that the prototype is designed to be extended with real company documents and connectors, not presented as a live ERP integration.
 
 ### Suggested teacher explanation
 

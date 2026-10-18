@@ -77,6 +77,7 @@ import {
 
 type Section = "overview" | "findings" | "actions" | "evidence" | "monitoring" | "india" | "toolkit" | "evaluation";
 type FilterValue = "all" | Severity;
+type ViewMode = "standard" | "compact" | "presentation";
 
 const navItems: { id: Section; label: string; icon: typeof Activity; count?: string }[] = [
   { id: "overview", label: "Operations overview", icon: Radar },
@@ -373,6 +374,15 @@ function ThemeModeControl() {
   return <div className="theme-mode-control" aria-label="Choose display mode">{modes.map(({ id, label, icon: Icon }) => <button key={id} className={theme === id ? "active" : ""} onClick={() => setTheme(id)} title={`${label} mode`} aria-label={`${label} mode`}><Icon size={14} /><span>{label}</span></button>)}</div>;
 }
 
+function ViewModeControl({ viewMode, setViewMode }: { viewMode: ViewMode; setViewMode: (mode: ViewMode) => void }) {
+  const modes: Array<{ id: ViewMode; label: string }> = [
+    { id: "standard", label: "Standard" },
+    { id: "compact", label: "Compact" },
+    { id: "presentation", label: "Presentation" },
+  ];
+  return <div className="view-mode-control" aria-label="Choose dashboard layout">{modes.map(mode => <button key={mode.id} className={viewMode === mode.id ? "active" : ""} onClick={() => setViewMode(mode.id)} title={`${mode.label} layout`} aria-label={`${mode.label} layout`}>{mode.label}</button>)}</div>;
+}
+
 export default function Home() {
   const [activeSection, setActiveSection] = useState<Section>("overview");
   const [activeFilter, setActiveFilter] = useState<FilterValue>("all");
@@ -383,10 +393,15 @@ export default function Home() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [language, setLanguage] = useState<LanguageMode>("English");
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    const stored = window.localStorage.getItem("opsdrift-view-mode");
+    return stored === "compact" || stored === "presentation" ? stored : "standard";
+  });
   const fileInput = useRef<HTMLInputElement>(null);
   const kpis = useMemo(() => getKpis(actions), [actions]);
 
   useEffect(() => { document.title = "OpsDrift AI — Process observability"; }, []);
+  useEffect(() => { window.localStorage.setItem("opsdrift-view-mode", viewMode); }, [viewMode]);
   useEffect(() => { if (!notice) return; const timeout = window.setTimeout(() => setNotice(null), 3600); return () => window.clearTimeout(timeout); }, [notice]);
 
   const jumpTo = (section: Section) => { setActiveSection(section); setMobileNavOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); };
@@ -407,7 +422,7 @@ export default function Home() {
   };
 
   return (
-    <div className="ops-app">
+    <div className={`ops-app view-${viewMode}`}>
       <aside className={`app-sidebar ${mobileNavOpen ? "sidebar-open" : ""}`}>
         <div className="brand-lockup"><div className="brand-mark"><span /></div><div><strong>opsdrift</strong><small>operations intelligence</small></div></div>
         <div className="workspace-switcher"><div className="workspace-avatar">N</div><div><span>Northstar Manufacturing India</span><small>Procurement workspace</small></div><ChevronRight size={15} /></div>
@@ -416,7 +431,7 @@ export default function Home() {
       </aside>
       {mobileNavOpen && <button className="mobile-backdrop" onClick={() => setMobileNavOpen(false)} aria-label="Close navigation" />}
       <main className="app-main">
-        <header className="topbar"><button className="mobile-menu" onClick={() => setMobileNavOpen(true)} aria-label="Open navigation"><Menu size={20} /></button><div className="breadcrumb"><span>Northstar Manufacturing India</span><ChevronRight size={14} /><strong>{sectionTitle[activeSection].eyebrow}</strong></div><div className="topbar-actions"><ThemeModeControl /><button className="search-trigger"><Search size={16} /><span>Search workspace</span><kbd>⌘ K</kbd></button><button className="icon-button"><BellIcon /></button><div className="topbar-avatar">AK</div></div></header>
+        <header className="topbar"><button className="mobile-menu" onClick={() => setMobileNavOpen(true)} aria-label="Open navigation"><Menu size={20} /></button><div className="breadcrumb"><span>Northstar Manufacturing India</span><ChevronRight size={14} /><strong>{sectionTitle[activeSection].eyebrow}</strong></div><div className="topbar-actions"><ViewModeControl viewMode={viewMode} setViewMode={setViewMode} /><ThemeModeControl /><button className="search-trigger"><Search size={16} /><span>Search workspace</span><kbd>⌘ K</kbd></button><button className="icon-button"><BellIcon /></button><div className="topbar-avatar">AK</div></div></header>
         <div className="page-content">
           <div className="page-header"><div><SectionEyebrow icon={activeSection === "overview" ? Radar : navItems.find(item => item.id === activeSection)?.icon}>{sectionTitle[activeSection].eyebrow}</SectionEyebrow><h2>{sectionTitle[activeSection].title}</h2><p>{sectionTitle[activeSection].copy}</p></div><div className="page-header-actions"><span className="date-chip"><Clock3 size={14} />Oct 01 — Oct 18, 2026</span><button className="icon-button subtle"><Filter size={16} /></button></div></div>
           {activeSection === "overview" && <Overview kpis={kpis} activeFilter={activeFilter} setActiveFilter={setActiveFilter} onSelectFinding={setSelectedFinding} onJump={jumpTo} />}

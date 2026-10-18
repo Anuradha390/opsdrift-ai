@@ -81,3 +81,8 @@
 - [x] Add a purchase-threshold simulator showing the estimated open-request review impact.
 - [x] Add a process drift heatmap by control owner and a browser-local reviewer note field.
 - [x] Document that these workflow states are prototype-local until database persistence is connected.
+
+## Interactive presentation controls
+
+- [x] Add persistent Light, Dim, Dark, and System color modes.
+- [x] Add Standard, Compact, and Presentation dashboard layouts for everyday work and recruiter demos.
