@@ -48,11 +48,15 @@ import {
   changeWatch,
   evidence as seededEvidence,
   buildAuditCsv,
+  evaluationSummary,
   findings,
   getEvidence,
   getKpis,
   initialActions,
+  knownLimitations,
   parseUpload,
+  retrievalBenchmarks,
+  rulebook,
   gstChecks,
   integrationStatus,
   processScores,
@@ -67,7 +71,7 @@ import {
   type Severity,
 } from "@/lib/opsdrift-data";
 
-type Section = "overview" | "findings" | "actions" | "evidence" | "monitoring" | "india";
+type Section = "overview" | "findings" | "actions" | "evidence" | "monitoring" | "india" | "evaluation";
 type FilterValue = "all" | Severity;
 
 const navItems: { id: Section; label: string; icon: typeof Activity; count?: string }[] = [
@@ -77,6 +81,7 @@ const navItems: { id: Section; label: string; icon: typeof Activity; count?: str
   { id: "evidence", label: "Evidence library", icon: FolderOpen, count: "07" },
   { id: "monitoring", label: "Change monitor", icon: GitCompareArrows, count: "01" },
   { id: "india", label: "India controls", icon: BadgeIndianRupee, count: "09" },
+  { id: "evaluation", label: "Evaluation lab", icon: BarChart3, count: "48" },
 ];
 
 const severityMeta: Record<Severity, { label: string; className: string }> = {
@@ -241,6 +246,18 @@ function IndiaControls({ language, setLanguage, onNotice }: { language: Language
   );
 }
 
+function EvaluationLab({ onNotice }: { onNotice: (message: string) => void }) {
+  return (
+    <section className="evaluation-workspace">
+      <div className="evaluation-note"><div className="notebook-mark"><FileText size={18} /></div><div><strong>This is the part you can defend in a review.</strong><p>Instead of saying “the AI is accurate,” this page shows the labelled questions, retrieval baselines, rules, and failure cases used in the prototype.</p></div><span className="mono-label">EXPERIMENT / 04</span></div>
+      <div className="eval-summary-grid">{[[String(evaluationSummary.questions), "labelled questions"], [String(evaluationSummary.sourceDocs), "source documents"], [String(evaluationSummary.labelledPairs), "query / passage pairs"], [evaluationSummary.lastRun, "last run"]].map(([value, label], index) => <div className="eval-summary" key={label}><strong className={index === 3 ? "eval-date" : ""}>{value}</strong><span>{label}</span></div>)}</div>
+      <div className="content-card eval-card"><div className="content-card-heading"><div><SectionEyebrow icon={BarChart3}>RETRIEVAL BENCHMARK</SectionEyebrow><h2>Does reranking actually help?</h2></div><span className="eval-caption">Recall@5 on internal labelled set</span></div><div className="benchmark-list">{retrievalBenchmarks.map((benchmark, index) => <div className="benchmark-row" key={benchmark.method}><div className="benchmark-label"><strong>{benchmark.method}</strong><span>{benchmark.note}</span></div><div className="benchmark-track"><span style={{ width: `${benchmark.recall}%` }} className={index === retrievalBenchmarks.length - 1 ? "benchmark-best" : ""} /></div><b>{benchmark.recall}%</b><small>MRR {benchmark.mrr}</small></div>)}</div><div className="eval-footnote"><span><i className="legend-dot teal-dot" />Hybrid search finds more relevant passages</span><span><i className="legend-dot rust-dot" />Reranker improves ordering</span><button className="text-button" onClick={() => onNotice("The benchmark is seeded with 48 labelled questions and is ready to replace with a real evaluation set.")}>Edit test set <ChevronRight size={14} /></button></div></div>
+      <div className="eval-columns"><div className="content-card eval-card"><div className="content-card-heading"><div><SectionEyebrow icon={Zap}>EXPLICIT RULEBOOK</SectionEyebrow><h2>Rules an operator can inspect</h2></div><button className="icon-button subtle" onClick={() => onNotice("Rule editing is the next backend step.")}><Plus size={16} /></button></div><div className="rule-list">{rulebook.map(rule => <div className="rule-row" key={rule.id}><span className="rule-id">{rule.id}</span><div><strong>{rule.name}</strong><code>{rule.logic}</code></div><span className="rule-result">{rule.result}</span></div>)}</div></div><div className="content-card eval-card limitation-card"><SectionEyebrow icon={TriangleAlert}>KNOWN LIMITATIONS</SectionEyebrow><h2>What this prototype does not pretend to solve.</h2><div className="limitation-list">{knownLimitations.map(item => <div key={item}><span>—</span><p>{item}</p></div>)}</div><button className="text-button" onClick={() => onNotice("These limitation notes are saved as part of the project’s review trail.")}>Add review note <ChevronRight size={14} /></button></div></div>
+      <div className="content-card review-card"><div><SectionEyebrow icon={UserRound}>HUMAN REVIEW LOOP</SectionEyebrow><h2>AI flags it. An owner decides it.</h2><p>Every finding stays provisional until a finance or procurement owner confirms the applicable policy version and closes the corrective action.</p></div><div className="review-stats"><span><strong>03</strong>pending review</span><span><strong>01</strong>human override</span><span><strong>100%</strong>source linked</span></div><Button onClick={() => onNotice("Review queue opened. Assignments will be persisted when database workflows are connected.")}><ClipboardCheck size={15} />Open review queue</Button></div>
+    </section>
+  );
+}
+
 function Overview({ kpis, activeFilter, setActiveFilter, onSelectFinding, onJump }: { kpis: ReturnType<typeof getKpis>; activeFilter: FilterValue; setActiveFilter: (filter: FilterValue) => void; onSelectFinding: (finding: Finding) => void; onJump: (section: Section) => void }) {
   const visibleFindings = findings.filter(item => activeFilter === "all" || item.severity === activeFilter);
   return (
@@ -248,10 +265,10 @@ function Overview({ kpis, activeFilter, setActiveFilter, onSelectFinding, onJump
       <section className="hero-grid">
         <div className="hero-panel">
           <div className="hero-panel-top"><SectionEyebrow icon={Radar}>PROCESS OBSERVABILITY / PROCUREMENT</SectionEyebrow><span className="live-pill"><span />Live workspace</span></div>
-          <h1>Your process is leaking<br /><em>at vendor onboarding.</em></h1>
-          <p>OpsDrift compares what your policy says should happen with the evidence of what actually happened. This week, 3 repeatable gaps are costing time and increasing audit exposure.</p>
+          <h1>Three checks failed<br /><em>at vendor onboarding.</em></h1>
+          <p>This prototype compares a procurement rule with the records around it. The current sample contains 17 source documents, 48 labelled questions, and three repeatable control gaps.</p>
           <div className="hero-actions"><Button onClick={() => onJump("findings")}><ShieldAlert size={15} />Inspect 3 findings</Button><Button variant="outline" onClick={() => onJump("evidence")}><Upload size={15} />Add evidence</Button></div>
-          <div className="hero-footnote"><span className="mono-label">LAST ANALYSIS</span><span>Oct 18, 2026 · 09:42</span><span className="hero-separator" /><span className="mono-label">SOURCES</span><span>{kpis.evidence} monitored</span></div>
+          <div className="hero-footnote"><span className="mono-label">DATASET</span><span>Northstar sample / v0.1</span><span className="hero-separator" /><span className="mono-label">SOURCES</span><span>{kpis.evidence} monitored</span></div>
         </div>
         <div className="health-panel">
           <div className="panel-heading"><span className="mono-label">PROCESS HEALTH</span><button className="icon-button subtle"><MoreHorizontal size={17} /></button></div>
@@ -293,12 +310,13 @@ export default function Home() {
   const selectFindingById = (findingId: string) => { const finding = findings.find(item => item.id === findingId); if (finding) { setSelectedFinding(finding); setActiveSection("findings"); } };
 
   const sectionTitle: Record<Section, { eyebrow: string; title: string; copy: string }> = {
-    overview: { eyebrow: "Operations overview", title: "Process observability, not another chatbot.", copy: "The fastest path from scattered business evidence to a fixable operational gap." },
+    overview: { eyebrow: "Operations overview", title: "Three checks failed this week.", copy: "A working prototype for finding gaps between procurement policy and the records teams actually create." },
     findings: { eyebrow: "Drift findings", title: "Where reality is diverging.", copy: "Ranked by risk, recurrence, and the cost of leaving the gap untouched." },
     actions: { eyebrow: "Corrective actions", title: "Move findings toward closure.", copy: "Every detected gap becomes an owned next step with an audit trail." },
     evidence: { eyebrow: "Evidence library", title: "The sources behind every signal.", copy: "Policies define the expected process. Records show what happened." },
     monitoring: { eyebrow: "Change monitor", title: "Policy changes need operational follow-through.", copy: "Track where a new version should change forms, handoffs, and open work." },
     india: { eyebrow: "India controls", title: "Compliance signals before money moves.", copy: "GST, TDS, vendor risk, and invoice controls built around Indian procurement workflows." },
+    evaluation: { eyebrow: "Evaluation lab", title: "Show the work behind the answer.", copy: "Baselines, labelled examples, explicit rules, and limitations for a reproducible project review." },
   };
 
   return (
@@ -320,6 +338,7 @@ export default function Home() {
           {activeSection === "evidence" && <section className="content-card page-card"><div className="content-card-heading"><div><SectionEyebrow icon={FolderOpen}>MONITORED EVIDENCE</SectionEyebrow><h2>{evidenceItems.length} sources in this workspace</h2></div><div><input ref={fileInput} type="file" accept=".txt,.csv,.json,.md,.log" hidden onChange={handleUpload} /><Button onClick={() => fileInput.current?.click()} disabled={uploading}><Upload size={15} />{uploading ? "Reading file…" : "Add evidence"}</Button></div></div><div className="upload-callout"><div className="upload-icon"><Sparkles size={19} /></div><div><strong>Bring in the evidence your business already has.</strong><p>Upload a policy, CSV export, invoice note, or approval log. The MVP reads text locally and adds it to the evidence chain without sending files anywhere.</p></div><span className="mono-label">LOCAL ANALYSIS</span></div><div className="evidence-list">{evidenceItems.map(item => <EvidenceCard key={item.id} item={item} />)}</div></section>}
           {activeSection === "monitoring" && <section className="monitoring-layout"><div className="content-card page-card change-detail-card"><div className="content-card-heading"><div><SectionEyebrow icon={GitCompareArrows}>POLICY DIFF</SectionEyebrow><h2>{changeWatch.title}</h2></div><StatusPill status="watching" /></div><div className="version-compare"><div><span className="mono-label">PREVIOUS VERSION</span><strong>{changeWatch.previous}</strong><small>Purchase Approval Matrix v2.3</small></div><div className="compare-arrow"><ArrowUpRight size={20} /></div><div className="current-version"><span className="mono-label">CURRENT VERSION</span><strong>{changeWatch.current}</strong><small>Purchase Approval Matrix v2.4</small></div></div><div className="change-explanation"><SectionEyebrow icon={AlertCircle}>Operational impact</SectionEyebrow><p>{changeWatch.note}</p><div className="impact-grid"><div><strong>03</strong><span>process steps to update</span></div><div><strong>14</strong><span>open requests affected</span></div><div><strong>02</strong><span>teams to notify</span></div></div></div><Button onClick={() => setNotice("Impact review queued for Finance and Procurement.")}><ClipboardCheck size={15} />Create impact review</Button></div><div className="content-card page-card monitor-side"><SectionEyebrow icon={Zap}>WHAT OPSDRIFT WATCHES</SectionEyebrow><h2>Changes are only useful when the work changes too.</h2><p>OpsDrift maps policy changes to the forms, roles, and open records that depend on them. That is the gap between version control and operational control.</p><div className="watch-list"><span><Check size={14} />Approved policy versions</span><span><Check size={14} />Forms and checklists</span><span><Check size={14} />Open requests and exceptions</span><span><Check size={14} />Owners and due dates</span></div><button className="text-button" onClick={() => setNotice("Monitoring rules are available in the next workspace setup step.")}>Configure monitoring <ChevronRight size={14} /></button></div></section>}
           {activeSection === "india" && <IndiaControls language={language} setLanguage={setLanguage} onNotice={setNotice} />}
+          {activeSection === "evaluation" && <EvaluationLab onNotice={setNotice} />}
         </div>
       </main>
       {selectedFinding && <FindingDrawer finding={selectedFinding} evidenceItems={evidenceItems} onClose={() => setSelectedFinding(null)} onCreateAction={createAction} />}

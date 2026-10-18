@@ -54,3 +54,12 @@
 - [x] Show CSV-ready import connectivity plus clearly labeled future Tally, Zoho Books, and email connector surfaces.
 - [x] Provide an audit-ready CSV export with finding IDs, severity, impact, evidence count, and detection time.
 - [x] Add English/Hindi labels for the India controls workspace.
+
+## Technical evidence and human-review layer
+
+- [x] Add an evaluation lab comparing BM25, vector, hybrid, and hybrid-plus-reranker retrieval.
+- [x] Show labelled question count, source-document count, query/passage pairs, and last-run metadata.
+- [x] Show explicit procurement and GST/TDS rules with human-readable logic and exception counts.
+- [x] Show known limitations instead of hiding OCR, live-GSTIN, policy-conflict, and seeded-data boundaries.
+- [x] Add a human-review loop that keeps findings provisional until an operator confirms them.
+- [x] Replace generic marketing copy with a grounded dataset/sample explanation in the main dashboard.

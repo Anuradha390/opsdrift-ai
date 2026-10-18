@@ -273,6 +273,34 @@ export const roiMetrics = [
   { label: "Audit hours saved", value: "18.4h", detail: "estimated monthly recovery" },
 ];
 
+export const retrievalBenchmarks = [
+  { method: "BM25 only", recall: 71, mrr: "0.58", note: "Strong on exact policy terms" },
+  { method: "Vector only", recall: 79, mrr: "0.66", note: "Finds paraphrased evidence" },
+  { method: "Hybrid fusion", recall: 86, mrr: "0.74", note: "Balances terms and meaning" },
+  { method: "Hybrid + reranker", recall: 91, mrr: "0.83", note: "Best ordering on labelled set" },
+];
+
+export const evaluationSummary = {
+  questions: 48,
+  sourceDocs: 17,
+  labelledPairs: 126,
+  lastRun: "Oct 18, 2026 · 09:38",
+};
+
+export const rulebook = [
+  { id: "R-014", name: "Purchase threshold", logic: "amount > ₹5,00,000 → require 3 quotations + Finance approval", result: "7 exceptions" },
+  { id: "R-022", name: "Vendor security gate", logic: "vendor.active = true → questionnaire must exist", result: "18 exceptions" },
+  { id: "R-031", name: "Invoice evidence", logic: "invoice > ₹1,00,000 → system approval required", result: "12 exceptions" },
+  { id: "R-045", name: "GST state check", logic: "same state → CGST + SGST; other state → IGST", result: "1 review" },
+];
+
+export const knownLimitations = [
+  "Scanned PDFs need OCR before their text can be compared.",
+  "GSTIN status is not verified against the live government portal in this MVP.",
+  "A policy conflict still needs a human owner to choose the applicable version.",
+  "Seeded metrics are illustrative; a real deployment needs labelled company history.",
+];
+
 export function buildAuditCsv() {
   const header = ["Finding ID", "Process", "Severity", "Status", "Business Impact", "Evidence Count", "Detected"];
   const rows = findings.map(item => [item.id, item.process, item.severity, item.status, item.impact, String(item.evidenceIds.length), item.detected]);

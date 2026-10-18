@@ -18,6 +18,7 @@ The first demo ships with a realistic seeded procurement workspace so the produc
 - Show a change-monitoring view that explains how a policy update could affect process steps.
 - Include a small “Why OpsDrift?” positioning panel that communicates policy-vs-reality drift detection rather than generic document chat.
 - Show an India controls workspace with GST/TDS exception signals, three-way PO/GRN/invoice matching, vendor risk scores, process scores, root-cause notes, ROI metrics, CSV audit export, bilingual labels, and integration-ready surfaces for Tally, Zoho Books, and email.
+- Show an evaluation lab with BM25/vector/hybrid/reranker comparison, a labelled test-set summary, explicit business rules, known limitations, and a human-review loop so the project can be defended as an engineering study rather than a generic AI interface.
 
 ## Implementation approach
 
