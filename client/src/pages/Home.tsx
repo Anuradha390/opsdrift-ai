@@ -1,14 +1,21 @@
 import {
   Activity,
   AlertCircle,
+  ArrowLeftRight,
   ArrowDownRight,
   ArrowUpRight,
   BarChart3,
+  BadgeIndianRupee,
+  Building2,
   Check,
+  CheckCircle2,
   ChevronRight,
   CircleHelp,
   ClipboardCheck,
   Clock3,
+  DatabaseZap,
+  Download,
+  FileSpreadsheet,
   FileCheck2,
   FileText,
   Filter,
@@ -16,14 +23,19 @@ import {
   Gauge,
   GitCompareArrows,
   Inbox,
+  Languages,
+  Landmark,
+  Link2,
   Layers3,
   Menu,
   MoreHorizontal,
   Plus,
   Radar,
+  ReceiptText,
   Search,
   ShieldAlert,
   Sparkles,
+  TriangleAlert,
   Upload,
   UserRound,
   UsersRound,
@@ -35,11 +47,18 @@ import { Button } from "@/components/ui/button";
 import {
   changeWatch,
   evidence as seededEvidence,
+  buildAuditCsv,
   findings,
   getEvidence,
   getKpis,
   initialActions,
   parseUpload,
+  gstChecks,
+  integrationStatus,
+  processScores,
+  roiMetrics,
+  threeWayMatches,
+  vendorRisk,
   type ActionStatus,
   type CorrectiveAction,
   type Evidence,
@@ -48,7 +67,7 @@ import {
   type Severity,
 } from "@/lib/opsdrift-data";
 
-type Section = "overview" | "findings" | "actions" | "evidence" | "monitoring";
+type Section = "overview" | "findings" | "actions" | "evidence" | "monitoring" | "india";
 type FilterValue = "all" | Severity;
 
 const navItems: { id: Section; label: string; icon: typeof Activity; count?: string }[] = [
@@ -57,6 +76,7 @@ const navItems: { id: Section; label: string; icon: typeof Activity; count?: str
   { id: "actions", label: "Corrective actions", icon: ClipboardCheck, count: "04" },
   { id: "evidence", label: "Evidence library", icon: FolderOpen, count: "07" },
   { id: "monitoring", label: "Change monitor", icon: GitCompareArrows, count: "01" },
+  { id: "india", label: "India controls", icon: BadgeIndianRupee, count: "09" },
 ];
 
 const severityMeta: Record<Severity, { label: string; className: string }> = {
@@ -183,6 +203,44 @@ function FindingDrawer({ finding, evidenceItems, onClose, onCreateAction }: { fi
   );
 }
 
+type LanguageMode = "English" | "हिन्दी";
+
+function IndiaControls({ language, setLanguage, onNotice }: { language: LanguageMode; setLanguage: (language: LanguageMode) => void; onNotice: (message: string) => void }) {
+  const hindi = language === "हिन्दी";
+  const downloadAudit = () => {
+    const blob = new Blob([buildAuditCsv()], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = "opsdrift-audit-report.csv";
+    anchor.click();
+    URL.revokeObjectURL(url);
+    onNotice("Audit report downloaded as CSV.");
+  };
+  return (
+    <section className="india-workspace">
+      <div className="india-banner">
+        <div><div className="india-banner-title"><BadgeIndianRupee size={19} /><span>{hindi ? "भारत अनुपालन नियंत्रण" : "India controls workspace"}</span><span className="beta-chip">MVP</span></div><p>{hindi ? "GST, TDS, vendor और invoice controls को एक evidence trail में लाएँ।" : "Bring GST, TDS, vendor, and invoice controls into one evidence trail."}</p></div>
+        <div className="language-switch"><Languages size={14} /><button className={language === "English" ? "active" : ""} onClick={() => setLanguage("English")}>English</button><button className={language === "हिन्दी" ? "active" : ""} onClick={() => setLanguage("हिन्दी")}>हिन्दी</button></div>
+      </div>
+      <div className="roi-grid">{roiMetrics.map((metric, index) => <div className={`roi-card roi-${index}`} key={metric.label}><span>{metric.label}</span><strong>{metric.value}</strong><small>{metric.detail}</small></div>)}</div>
+      <div className="india-grid india-grid-wide">
+        <div className="content-card india-card"><div className="content-card-heading"><div><SectionEyebrow icon={ReceiptText}>GST / TDS CONTROL CHECKS</SectionEyebrow><h2>Tax signals before payment</h2></div><span className="control-count">2 review</span></div><div className="control-list">{gstChecks.map(check => <div className="control-row" key={check.id}><div className={`control-status control-${check.tone}`}>{check.tone === "teal" ? <CheckCircle2 size={15} /> : <TriangleAlert size={15} />}</div><div className="control-copy"><div><strong>{check.check}</strong><span>{check.invoice} · {check.vendor}</span></div><p>{check.detail}</p><div className="control-meta"><span>{check.amount}</span><span className={`control-state control-state-${check.tone}`}>{check.status}</span></div></div><ChevronRight size={15} className="control-chevron" /></div>)}</div><button className="full-list-button" onClick={() => onNotice("GST verification rules are ready for a real GSTIN API connector.")}>Configure GSTIN verification <ChevronRight size={15} /></button></div>
+        <div className="content-card india-card"><div className="content-card-heading"><div><SectionEyebrow icon={ArrowLeftRight}>THREE-WAY MATCH</SectionEyebrow><h2>PO · receipt · invoice</h2></div><span className="control-count">2 exceptions</span></div><div className="match-summary"><div><strong>67%</strong><span>matched this month</span></div><div className="match-track"><span /></div><div className="match-summary-meta"><span>3 invoices sampled</span><b>₹4.49L</b></div></div><div className="match-table"><div className="match-table-head"><span>Invoice</span><span>Vendor</span><span>Exception</span><span>Value</span></div>{threeWayMatches.map(match => <div className="match-table-row" key={match.invoice}><span className="mono-label">{match.invoice}</span><span>{match.vendor}</span><span className={match.status === "matched" ? "match-ok" : "match-exception"}>{match.issue}</span><span>{match.value}</span></div>)}</div><button className="full-list-button" onClick={() => onNotice("Three-way matching is currently running on seeded records and CSV imports.")}>Open exception queue <ChevronRight size={15} /></button></div>
+      </div>
+      <div className="india-grid india-grid-wide">
+        <div className="content-card india-card"><div className="content-card-heading"><div><SectionEyebrow icon={Building2}>VENDOR RISK</SectionEyebrow><h2>Know who needs review</h2></div><button className="text-button" onClick={() => onNotice("Vendor risk rules can be customized per supplier category.")}>Risk rules <ChevronRight size={14} /></button></div><div className="vendor-list">{vendorRisk.map(vendor => <div className="vendor-row" key={vendor.name}><div className="vendor-initial">{vendor.name[0]}</div><div className="vendor-copy"><strong>{vendor.name}</strong><span>{vendor.category}</span></div><div className={`risk-score risk-${vendor.score > 75 ? "high" : vendor.score > 50 ? "medium" : "low"}`}><b>{vendor.score}</b><span>/ 100 risk</span></div><div className="vendor-flag">{vendor.flags}</div></div>)}</div></div>
+        <div className="content-card india-card process-score-card"><div className="content-card-heading"><div><SectionEyebrow icon={BarChart3}>PROCESS DRIFT SCORE</SectionEyebrow><h2>Control health by flow</h2></div></div><div className="score-list">{processScores.map(item => <div className="score-row" key={item.label}><div><span>{item.label}</span><small>{item.owner}</small></div><b>{item.score}</b><div className="score-track"><span className={item.score < 70 ? "score-low" : item.score < 80 ? "score-mid" : "score-good"} style={{ width: `${item.score}%` }} /></div></div>)}</div><div className="root-cause-note"><CircleHelp size={15} /><span><strong>Top root cause:</strong> conditional fields are missing from 2 forms.</span></div></div>
+      </div>
+      <div className="india-grid india-grid-wide">
+        <div className="content-card india-card"><div className="content-card-heading"><div><SectionEyebrow icon={DatabaseZap}>CONNECT YOUR STACK</SectionEyebrow><h2>Start with exports, grow into integrations</h2></div></div><div className="integration-list">{integrationStatus.map(integration => <div className="integration-row" key={integration.name}><div className="integration-icon">{integration.icon === "spreadsheet" ? <FileSpreadsheet size={16} /> : integration.icon === "mail" ? <Inbox size={16} /> : <Landmark size={16} />}</div><div><strong>{integration.name}</strong><span>{integration.detail}</span></div><span className={`integration-status ${integration.status === "connected" ? "connected" : "planned"}`}>{integration.status === "connected" ? <Check size={12} /> : <Link2 size={12} />}{integration.status}</span></div>)}</div></div>
+        <div className="content-card india-card audit-card"><SectionEyebrow icon={Download}>AUDIT-READY OUTPUT</SectionEyebrow><h2>Turn evidence into an audit pack.</h2><p>Export findings, source counts, severity, business impact, and detection time for internal or statutory review.</p><Button onClick={downloadAudit}><Download size={15} />Download CSV report</Button><span className="audit-note"><Check size={13} />No credentials required in this MVP</span></div>
+      </div>
+      <div className="india-footnote"><Sparkles size={14} /><span><strong>Built for Indian SMB workflows:</strong> the demo uses INR and CSV imports today; live GST, Tally, Zoho, email, and regional-language connectors are shown as integration-ready surfaces, not simulated live connections.</span></div>
+    </section>
+  );
+}
+
 function Overview({ kpis, activeFilter, setActiveFilter, onSelectFinding, onJump }: { kpis: ReturnType<typeof getKpis>; activeFilter: FilterValue; setActiveFilter: (filter: FilterValue) => void; onSelectFinding: (finding: Finding) => void; onJump: (section: Section) => void }) {
   const visibleFindings = findings.filter(item => activeFilter === "all" || item.severity === activeFilter);
   return (
@@ -221,6 +279,7 @@ export default function Home() {
   const [uploading, setUploading] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+  const [language, setLanguage] = useState<LanguageMode>("English");
   const fileInput = useRef<HTMLInputElement>(null);
   const kpis = useMemo(() => getKpis(actions), [actions]);
 
@@ -239,6 +298,7 @@ export default function Home() {
     actions: { eyebrow: "Corrective actions", title: "Move findings toward closure.", copy: "Every detected gap becomes an owned next step with an audit trail." },
     evidence: { eyebrow: "Evidence library", title: "The sources behind every signal.", copy: "Policies define the expected process. Records show what happened." },
     monitoring: { eyebrow: "Change monitor", title: "Policy changes need operational follow-through.", copy: "Track where a new version should change forms, handoffs, and open work." },
+    india: { eyebrow: "India controls", title: "Compliance signals before money moves.", copy: "GST, TDS, vendor risk, and invoice controls built around Indian procurement workflows." },
   };
 
   return (
@@ -259,6 +319,7 @@ export default function Home() {
           {activeSection === "actions" && <section className="content-card page-card"><div className="content-card-heading"><div><SectionEyebrow icon={ClipboardCheck}>ACTION QUEUE</SectionEyebrow><h2>{actions.filter(action => action.status !== "complete").length} actions need an owner’s attention</h2></div><Button onClick={() => setNotice("New actions are created from a finding so every task keeps its evidence context.")}><Plus size={15} />New action</Button></div><div className="action-list">{actions.map(action => <ActionRow key={action.id} action={action} onComplete={completeAction} onSelectFinding={selectFindingById} />)}</div></section>}
           {activeSection === "evidence" && <section className="content-card page-card"><div className="content-card-heading"><div><SectionEyebrow icon={FolderOpen}>MONITORED EVIDENCE</SectionEyebrow><h2>{evidenceItems.length} sources in this workspace</h2></div><div><input ref={fileInput} type="file" accept=".txt,.csv,.json,.md,.log" hidden onChange={handleUpload} /><Button onClick={() => fileInput.current?.click()} disabled={uploading}><Upload size={15} />{uploading ? "Reading file…" : "Add evidence"}</Button></div></div><div className="upload-callout"><div className="upload-icon"><Sparkles size={19} /></div><div><strong>Bring in the evidence your business already has.</strong><p>Upload a policy, CSV export, invoice note, or approval log. The MVP reads text locally and adds it to the evidence chain without sending files anywhere.</p></div><span className="mono-label">LOCAL ANALYSIS</span></div><div className="evidence-list">{evidenceItems.map(item => <EvidenceCard key={item.id} item={item} />)}</div></section>}
           {activeSection === "monitoring" && <section className="monitoring-layout"><div className="content-card page-card change-detail-card"><div className="content-card-heading"><div><SectionEyebrow icon={GitCompareArrows}>POLICY DIFF</SectionEyebrow><h2>{changeWatch.title}</h2></div><StatusPill status="watching" /></div><div className="version-compare"><div><span className="mono-label">PREVIOUS VERSION</span><strong>{changeWatch.previous}</strong><small>Purchase Approval Matrix v2.3</small></div><div className="compare-arrow"><ArrowUpRight size={20} /></div><div className="current-version"><span className="mono-label">CURRENT VERSION</span><strong>{changeWatch.current}</strong><small>Purchase Approval Matrix v2.4</small></div></div><div className="change-explanation"><SectionEyebrow icon={AlertCircle}>Operational impact</SectionEyebrow><p>{changeWatch.note}</p><div className="impact-grid"><div><strong>03</strong><span>process steps to update</span></div><div><strong>14</strong><span>open requests affected</span></div><div><strong>02</strong><span>teams to notify</span></div></div></div><Button onClick={() => setNotice("Impact review queued for Finance and Procurement.")}><ClipboardCheck size={15} />Create impact review</Button></div><div className="content-card page-card monitor-side"><SectionEyebrow icon={Zap}>WHAT OPSDRIFT WATCHES</SectionEyebrow><h2>Changes are only useful when the work changes too.</h2><p>OpsDrift maps policy changes to the forms, roles, and open records that depend on them. That is the gap between version control and operational control.</p><div className="watch-list"><span><Check size={14} />Approved policy versions</span><span><Check size={14} />Forms and checklists</span><span><Check size={14} />Open requests and exceptions</span><span><Check size={14} />Owners and due dates</span></div><button className="text-button" onClick={() => setNotice("Monitoring rules are available in the next workspace setup step.")}>Configure monitoring <ChevronRight size={14} /></button></div></section>}
+          {activeSection === "india" && <IndiaControls language={language} setLanguage={setLanguage} onNotice={setNotice} />}
         </div>
       </main>
       {selectedFinding && <FindingDrawer finding={selectedFinding} evidenceItems={evidenceItems} onClose={() => setSelectedFinding(null)} onCreateAction={createAction} />}

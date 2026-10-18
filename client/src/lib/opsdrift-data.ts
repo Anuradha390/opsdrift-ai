@@ -233,6 +233,52 @@ export const changeWatch = {
   note: "OpsDrift found the new threshold in the approved policy, but the purchase request form still shows the old checklist on 14 open requests.",
 };
 
+export const gstChecks = [
+  { id: "gst-01", invoice: "INV-2026-1048", vendor: "Kaveri Components", check: "GSTIN state mismatch", detail: "Vendor is registered in Maharashtra, but the invoice applies IGST to a same-state delivery.", status: "review", amount: "₹2,48,600", tone: "rust" as const },
+  { id: "gst-02", invoice: "INV-2026-1039", vendor: "Aster Industrial Supply", check: "TDS threshold exceeded", detail: "Annual vendor payments crossed ₹30,000; TDS section 194C should be reviewed before payment.", status: "review", amount: "₹86,400", tone: "amber" as const },
+  { id: "gst-03", invoice: "INV-2026-1027", vendor: "BluePeak Logistics", check: "GST details verified", detail: "GSTIN, tax split, place of supply, and vendor master state agree.", status: "cleared", amount: "₹1,14,200", tone: "teal" as const },
+];
+
+export const threeWayMatches = [
+  { invoice: "INV-2026-1048", po: "PO-8831", receipt: "GRN-7712", vendor: "Kaveri Components", issue: "12 units billed, 10 received", value: "₹2,48,600", status: "exception" },
+  { invoice: "INV-2026-1039", po: "PO-8802", receipt: "GRN-7698", vendor: "Aster Industrial Supply", issue: "Unit price ₹420 vs PO ₹395", value: "₹86,400", status: "exception" },
+  { invoice: "INV-2026-1027", po: "PO-8779", receipt: "GRN-7670", vendor: "BluePeak Logistics", issue: "Matched", value: "₹1,14,200", status: "matched" },
+];
+
+export const vendorRisk = [
+  { name: "Kaveri Components", category: "Raw materials", score: 82, flags: "GST mismatch · 2 late deliveries", trend: "up" },
+  { name: "Aster Industrial Supply", category: "Maintenance", score: 61, flags: "TDS review · price variance", trend: "up" },
+  { name: "BluePeak Logistics", category: "Freight", score: 18, flags: "No active exceptions", trend: "down" },
+  { name: "Narmada Packaging", category: "Packaging", score: 44, flags: "Bank details changed once", trend: "flat" },
+];
+
+export const processScores = [
+  { label: "Vendor onboarding", score: 62, owner: "Procurement" },
+  { label: "Purchase approvals", score: 78, owner: "Finance" },
+  { label: "GST & TDS controls", score: 71, owner: "Accounts Payable" },
+  { label: "Invoice matching", score: 84, owner: "AP Operations" },
+];
+
+export const integrationStatus = [
+  { name: "CSV / Excel imports", detail: "Connected for this workspace", status: "connected", icon: "spreadsheet" },
+  { name: "Tally Prime", detail: "Connector blueprint ready", status: "coming soon", icon: "accounting" },
+  { name: "Zoho Books", detail: "Connector blueprint ready", status: "coming soon", icon: "accounting" },
+  { name: "Gmail / Outlook", detail: "Approval evidence ingestion", status: "coming soon", icon: "mail" },
+];
+
+export const roiMetrics = [
+  { label: "Risk identified", value: "₹35.0L", detail: "vendor and approval exposure" },
+  { label: "Delay cost found", value: "₹15.5L", detail: "avoidable purchase delay" },
+  { label: "Records to repair", value: "37", detail: "across 4 control checks" },
+  { label: "Audit hours saved", value: "18.4h", detail: "estimated monthly recovery" },
+];
+
+export function buildAuditCsv() {
+  const header = ["Finding ID", "Process", "Severity", "Status", "Business Impact", "Evidence Count", "Detected"];
+  const rows = findings.map(item => [item.id, item.process, item.severity, item.status, item.impact, String(item.evidenceIds.length), item.detected]);
+  return [header, ...rows].map(row => row.map(cell => `"${cell.replaceAll('"', '""')}"`).join(",")).join("\n");
+}
+
 export function getEvidence(evidenceId: string) {
   return evidence.find(item => item.id === evidenceId);
 }

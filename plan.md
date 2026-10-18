@@ -17,6 +17,7 @@ The first demo ships with a realistic seeded procurement workspace so the produc
 - Let the user upload a local text/CSV/JSON file and add it to the monitored evidence library.
 - Show a change-monitoring view that explains how a policy update could affect process steps.
 - Include a small “Why OpsDrift?” positioning panel that communicates policy-vs-reality drift detection rather than generic document chat.
+- Show an India controls workspace with GST/TDS exception signals, three-way PO/GRN/invoice matching, vendor risk scores, process scores, root-cause notes, ROI metrics, CSV audit export, bilingual labels, and integration-ready surfaces for Tally, Zoho Books, and email.
 
 ## Implementation approach
 

@@ -42,3 +42,15 @@
 - [x] Pass the production build.
 - [x] Start the configured Preview server and verify `/api/health` and `/manus-routes.json`.
 - [x] Save the finished implementation to the managed project checkpoint.
+
+## India-focused controls workspace
+
+- [x] Show INR-denominated GST/TDS exception signals with review and cleared states.
+- [x] Show three-way matching across purchase order, goods receipt, and invoice records.
+- [x] Show vendor risk scores with recurring flags and supplier categories.
+- [x] Show process drift scores for procurement, finance, GST/TDS, and invoice matching.
+- [x] Show a root-cause signal for missing conditional fields and form design gaps.
+- [x] Show ROI metrics for risk identified, delay cost, records to repair, and audit hours saved.
+- [x] Show CSV-ready import connectivity plus clearly labeled future Tally, Zoho Books, and email connector surfaces.
+- [x] Provide an audit-ready CSV export with finding IDs, severity, impact, evidence count, and detection time.
+- [x] Add English/Hindi labels for the India controls workspace.
