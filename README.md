@@ -4,8 +4,8 @@
 
 The project is intentionally different from a generic “chat with PDFs” application. It exposes the evidence chain, retrieval path, explicit business rules, process drift score, corrective action, evaluation metrics, and known limitations so that a finance or procurement operator can review and challenge the result.
 
-**Live demo:** https://opsdrift-ai.onrender.com
-**GitHub:** https://github.com/Anuradha390/opsdrift-ai
+**Public demo:** [https://opsdrift-ai.onrender.com](https://opsdrift-ai.onrender.com)
+**GitHub:** [https://github.com/Anuradha390/opsdrift-ai](https://github.com/Anuradha390/opsdrift-ai)
 
 ---
 
@@ -192,7 +192,7 @@ pnpm install
 pnpm dev
 ```
 
-The development server runs at `http://localhost:3000`. This address is only for local development; it is not the public demo link.
+Use the public Render URL above when sharing the project with teachers, reviewers, or employers.
 
 ### Useful commands
 
@@ -203,17 +203,7 @@ pnpm start       # Serve the production build
 pnpm test        # Project tests, if present
 ```
 
-The application health endpoint is:
-
-```text
-http://localhost:3000/api/health
-```
-
-Expected response:
-
-```json
-{"status":"ok"}
-```
+The deployed application health endpoint is [https://opsdrift-ai.onrender.com/api/health](https://opsdrift-ai.onrender.com/api/health) and returns `{"status":"ok"}` when the service is healthy.
 
 Do not commit `.env` files, credentials, Render secrets, database URLs, or API keys. They are excluded through `.gitignore`.
 
