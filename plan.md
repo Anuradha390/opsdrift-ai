@@ -2,7 +2,7 @@
 
 ## Product scope
 
-OpsDrift AI is a business operations intelligence dashboard for procurement-process drift. It is not a generic chat-with-documents app. It compares expected process requirements from SOPs and policies with observed evidence from invoices, vendor records, and approval messages. The MVP surfaces repeated deviations, missing evidence, policy-version risk, and corrective actions.
+OpsDrift AI is a business operations intelligence dashboard for procurement-process drift in Indian small and mid-sized businesses. It is not a generic chat-with-documents app. It compares expected process requirements from SOPs and policies with observed evidence from invoices, vendor records, and approval messages. The MVP surfaces repeated deviations, missing evidence, policy-version risk, and corrective actions using INR-denominated examples.
 
 The first demo ships with a realistic seeded procurement workspace so the product is immediately useful on first load. It also supports local upload of text, CSV, JSON, and common office-like files through the browser; uploaded content is represented in the evidence library and analyzed with deterministic rules that mirror a hybrid retrieval/reranking pipeline. The product must clearly show the evidence chain behind a finding.
 
